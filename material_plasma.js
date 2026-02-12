@@ -47,42 +47,61 @@ async function loadUnidades() {
             card.appendChild(clienteDiv);
 
             card.addEventListener('click', async () => {
+                if (card.isLoadingMaterials) return; // Prevent multiple simultaneous loads
+
                 const existingMaterials = card.querySelector('.materials-list');
                 if (existingMaterials) {
                     existingMaterials.remove();
-                }
+                } else {
+                    card.isLoadingMaterials = true;
+                    try {
+                        const response = await fetch(`/api/materiales/${unidad.id}`);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const materiales = await response.json();
 
-                try {
-                    const response = await fetch(`/api/materiales/${unidad.id}`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const materiales = await response.json();
-
-                    const materialsDiv = document.createElement('div');
-                    materialsDiv.className = 'materials-list';
-                    if (materiales.length === 0) {
-                        materialsDiv.textContent = 'No matching materials found.';
-                        materialsDiv.classList.add('show');
-                    } else {
-                        const ul = document.createElement('ul');
-                        materiales.forEach(material => {
-                            const li = document.createElement('li');
-                            li.textContent = material.nombre;
-                            ul.appendChild(li);
-                        });
-                        materialsDiv.appendChild(ul);
-                        setTimeout(() => {
+                        const materialsDiv = document.createElement('div');
+                        materialsDiv.className = 'materials-list';
+                        if (materiales.length === 0) {
+                            materialsDiv.textContent = 'No matching materials found.';
                             materialsDiv.classList.add('show');
-                        }, 10);
+                        } else {
+                            const ul = document.createElement('ul');
+                            materiales.forEach(material => {
+                                const li = document.createElement('li');
+                                li.textContent = material.nombre;
+                                if (selectMode) {
+                                    const cb = document.createElement('input');
+                                    cb.type = 'checkbox';
+                                    cb.className = 'material-checkbox';
+                                    cb.addEventListener('change', (e) => {
+                                        const materialName = li.textContent;
+                                        if (e.target.checked) {
+                                            selectedItems.push({ type: 'material', name: materialName, unidadId: card.querySelector('.id-large').textContent });
+                                        } else {
+                                            selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName));
+                                        }
+                                    });
+                                    li.insertBefore(cb, li.firstChild);
+                                }
+                                ul.appendChild(li);
+                            });
+                            materialsDiv.appendChild(ul);
+                            setTimeout(() => {
+                                materialsDiv.classList.add('show');
+                            }, 10);
+                        }
+                        card.appendChild(materialsDiv);
+                    } catch (error) {
+                        console.error('Error loading materials:', error);
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error';
+                        errorDiv.textContent = 'Error loading materials: ' + error.message;
+                        card.appendChild(errorDiv);
+                    } finally {
+                        card.isLoadingMaterials = false;
                     }
-                    card.appendChild(materialsDiv);
-                } catch (error) {
-                    console.error('Error loading materials:', error);
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'error';
-                    errorDiv.textContent = 'Error loading materials: ' + error.message;
-                    card.appendChild(errorDiv);
                 }
             });
 
