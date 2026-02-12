@@ -45,9 +45,12 @@ app.get('/', async(req,res)=>{
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Microservicio Tolvas</title>
                 <link rel="stylesheet" href="styles.css">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
             </head>
             <body>
+                <button id="select-btn" class="select-btn">Seleccionar</button>
                 <div id="cards-container"></div>
+                <button id="export-btn" class="export-btn" style="display:none;">Exportar a Excel</button>
                 <script src="material_plasma.js"></script>
                 <div class="footer-info">
                     <p class="status-badge">${sqlStatus}</p>
@@ -61,7 +64,11 @@ app.get('/api/unidades', async (req, res) => {
     try {
         let pool = await sql.connect(config);
         let result = await pool.request().query(`
-            SELECT u.id, u.estructura, c.descripcion, u.cliente, u.X1, u.SC, u.chasis4x2, u.chasis6x4, u.chasis8x4, u.CC, u.CHD, u.BBC, u.CDF
+            SELECT TOP 10 
+            u.id, u.estructura, c.descripcion, 
+            u.cliente, u.X1, u.SC, u.chasis4x2, 
+            u.chasis6x4, u.chasis8x4, u.CC, 
+            u.CHD, u.BBC, u.CDF
             FROM unidad u
             JOIN capacidad c ON u.capacidad = c.id
             ORDER BY u.id DESC
@@ -76,7 +83,6 @@ app.get('/api/materiales/:unidadId', async (req, res) => {
     const unidadId = req.params.unidadId;
     try {
         let pool = await sql.connect(config);
-        // Get the unidad
         let unidadResult = await pool.request()
             .input('id', sql.Int, unidadId)
             .query('SELECT * FROM unidad WHERE id = @id');
@@ -84,7 +90,6 @@ app.get('/api/materiales/:unidadId', async (req, res) => {
             return res.status(404).json({ error: 'Unidad not found' });
         }
         const unidad = unidadResult.recordset[0];
-        // Build where clauses for matching
         let whereClauses = [];
         const bits = ['X1', 'SC', 'chasis4x2', 'chasis6x4', 'chasis8x4', 'CC', 'CHD', 'BBC', 'CDF'];
         bits.forEach(bit => {
