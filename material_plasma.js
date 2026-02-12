@@ -17,6 +17,8 @@ async function loadUnidades() {
         unidades.forEach(unidad => {
             const card = document.createElement('div');
             card.className = 'card';
+            card.dataset.unidadId = unidad.id;
+            card.dataset.estructura = unidad.estructura;
 
             const idDiv = document.createElement('div');
             idDiv.className = 'id-large';
@@ -46,7 +48,9 @@ async function loadUnidades() {
             card.appendChild(titleDiv);
             card.appendChild(clienteDiv);
 
-            card.addEventListener('click', async () => {
+            card.addEventListener('click', async (e) => {
+                if (e.target.type === 'checkbox') return; // Don't toggle materials if clicking checkbox
+
                 if (card.isLoadingMaterials) return; // Prevent multiple simultaneous loads
 
                 const existingMaterials = card.querySelector('.materials-list');
@@ -76,11 +80,14 @@ async function loadUnidades() {
                                     cb.type = 'checkbox';
                                     cb.className = 'material-checkbox';
                                     cb.addEventListener('change', (e) => {
+                                        e.stopPropagation();
                                         const materialName = li.textContent;
+                                        const unidadId = card.dataset.unidadId;
+                                        const estructura = card.dataset.estructura;
                                         if (e.target.checked) {
-                                            selectedItems.push({ type: 'material', name: materialName, unidadId: card.querySelector('.id-large').textContent });
+                                            selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura });
                                         } else {
-                                            selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName));
+                                            selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName && item.unidadId === unidadId));
                                         }
                                     });
                                     li.insertBefore(cb, li.firstChild);
@@ -144,11 +151,30 @@ function updateCheckboxes() {
                 cb.type = 'checkbox';
                 cb.className = 'card-checkbox';
                 cb.addEventListener('change', (e) => {
-                    const unidadId = card.querySelector('.id-large').textContent;
+                    e.stopPropagation();
+                    const unidadId = card.dataset.unidadId;
+                    const estructura = card.dataset.estructura;
                     if (e.target.checked) {
-                        selectedItems.push({ type: 'unidad', id: unidadId, data: card.textContent });
+                        // Add the unidad
+                        selectedItems.push({ type: 'unidad', id: unidadId, estructura: estructura });
+                        // Check and add all materials in this card
+                        const materialsList = card.querySelector('.materials-list');
+                        if (materialsList) {
+                            const matCheckboxes = materialsList.querySelectorAll('.material-checkbox');
+                            matCheckboxes.forEach(cb => {
+                                cb.checked = true;
+                                const materialName = cb.parentElement.textContent;
+                                selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura });
+                            });
+                        }
                     } else {
                         selectedItems = selectedItems.filter(item => !(item.type === 'unidad' && item.id === unidadId));
+                        selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.unidadId === unidadId));
+                        const materialsList = card.querySelector('.materials-list');
+                        if (materialsList) {
+                            const matCheckboxes = materialsList.querySelectorAll('.material-checkbox');
+                            matCheckboxes.forEach(cb => cb.checked = false);
+                        }
                     }
                 });
                 card.insertBefore(cb, card.firstChild);
@@ -170,11 +196,14 @@ function updateCheckboxes() {
                         cb.type = 'checkbox';
                         cb.className = 'material-checkbox';
                         cb.addEventListener('change', (e) => {
+                            e.stopPropagation();
                             const materialName = li.textContent;
+                            const unidadId = card.dataset.unidadId;
+                            const estructura = card.dataset.estructura;
                             if (e.target.checked) {
-                                selectedItems.push({ type: 'material', name: materialName, unidadId: card.querySelector('.id-large').textContent });
+                                selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura });
                             } else {
-                                selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName));
+                                selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName && item.unidadId === unidadId));
                             }
                         });
                         li.insertBefore(cb, li.firstChild);
@@ -196,10 +225,9 @@ function exportToExcel() {
     }
 
     const data = selectedItems.map(item => ({
-        Tipo: item.type === 'unidad' ? 'Unidad' : 'Material',
-        ID: item.id || '',
-        Nombre: item.name || item.data || '',
-        Unidad: item.unidadId || ''
+        ID: item.id || item.unidadId,
+        ESTRUCTURA: item.estructura,
+        ITEM: item.name || item.data || ''
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
