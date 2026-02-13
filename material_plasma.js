@@ -1,14 +1,23 @@
 let selectMode = false;
 let selectedItems = [];
 
-async function loadUnidades() {
+async function loadUnidades(searchParams = {}) {
     try {
-        const response = await fetch('/api/unidades');
+        let url = '/api/unidades';
+        if (searchParams.estructura || searchParams.mes) {
+            const queryParams = new URLSearchParams();
+            if (searchParams.estructura) queryParams.append('estructura', searchParams.estructura);
+            if (searchParams.mes) queryParams.append('mes', searchParams.mes);
+            url = `/api/unidades/search?${queryParams.toString()}`;
+        }
+        
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const unidades = await response.json();
         const container = document.getElementById('cards-container');
+        container.innerHTML = ''; // Clear existing cards
 
         if (!Array.isArray(unidades)) {
             throw new Error('Expected an array of unidades, got: ' + JSON.stringify(unidades));
@@ -19,10 +28,15 @@ async function loadUnidades() {
             card.className = 'card';
             card.dataset.unidadId = unidad.id;
             card.dataset.estructura = unidad.estructura;
+            card.dataset.cliente = unidad.cliente;
 
             const idDiv = document.createElement('div');
             idDiv.className = 'id-large';
             idDiv.textContent = unidad.id;
+
+            const fechaDiv = document.createElement('div');
+            fechaDiv.className = 'fecha';
+            fechaDiv.textContent = unidad.fecha ? new Date(unidad.fecha).toLocaleDateString('es-ES') : '';
 
             const titleDiv = document.createElement('div');
             titleDiv.className = 'title';
@@ -45,11 +59,15 @@ async function loadUnidades() {
             clienteDiv.textContent = unidad.cliente;
 
             card.appendChild(idDiv);
+            card.appendChild(fechaDiv);
             card.appendChild(titleDiv);
             card.appendChild(clienteDiv);
 
             card.addEventListener('click', async (e) => {
                 if (e.target.type === 'checkbox') return; // Don't toggle materials if clicking checkbox
+                
+                // Don't toggle if clicking on materials list or its children
+                if (e.target.closest('.materials-list')) return;
 
                 if (card.isLoadingMaterials) return; // Prevent multiple simultaneous loads
 
@@ -84,8 +102,9 @@ async function loadUnidades() {
                                         const materialName = li.textContent;
                                         const unidadId = card.dataset.unidadId;
                                         const estructura = card.dataset.estructura;
+                                        const cliente = card.dataset.cliente;
                                         if (e.target.checked) {
-                                            selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura });
+                                            selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura, cliente: cliente });
                                         } else {
                                             selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName && item.unidadId === unidadId));
                                         }
@@ -129,6 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const selectBtn = document.getElementById('select-btn');
     const exportBtn = document.getElementById('export-btn');
+    const searchInput = document.getElementById('search-input');
+    const monthFilter = document.getElementById('month-filter');
 
     selectBtn.addEventListener('click', () => {
         selectMode = !selectMode;
@@ -139,7 +160,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     exportBtn.addEventListener('click', exportToExcel);
+
+    // Search functionality
+    function performSearch() {
+        const searchParams = {
+            estructura: searchInput.value.trim(),
+            mes: monthFilter.value
+        };
+        loadUnidades(searchParams);
+    }
+
+    searchInput.addEventListener('input', debounce(performSearch, 300));
+    monthFilter.addEventListener('change', performSearch);
 });
+
+// Debounce function to limit API calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
 function updateCheckboxes() {
     const cards = document.querySelectorAll('.card');
@@ -154,21 +200,20 @@ function updateCheckboxes() {
                     e.stopPropagation();
                     const unidadId = card.dataset.unidadId;
                     const estructura = card.dataset.estructura;
+                    const cliente = card.dataset.cliente;
                     if (e.target.checked) {
-                        // Add the unidad
-                        selectedItems.push({ type: 'unidad', id: unidadId, estructura: estructura });
-                        // Check and add all materials in this card
+                        // Only add materials, not the unidad itself
                         const materialsList = card.querySelector('.materials-list');
                         if (materialsList) {
                             const matCheckboxes = materialsList.querySelectorAll('.material-checkbox');
                             matCheckboxes.forEach(cb => {
                                 cb.checked = true;
                                 const materialName = cb.parentElement.textContent;
-                                selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura });
+                                selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura, cliente: cliente });
                             });
                         }
                     } else {
-                        selectedItems = selectedItems.filter(item => !(item.type === 'unidad' && item.id === unidadId));
+                        // Only remove materials when unchecking, not unidad
                         selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.unidadId === unidadId));
                         const materialsList = card.querySelector('.materials-list');
                         if (materialsList) {
@@ -200,8 +245,9 @@ function updateCheckboxes() {
                             const materialName = li.textContent;
                             const unidadId = card.dataset.unidadId;
                             const estructura = card.dataset.estructura;
+                            const cliente = card.dataset.cliente;
                             if (e.target.checked) {
-                                selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura });
+                                selectedItems.push({ type: 'material', name: materialName, unidadId: unidadId, estructura: estructura, cliente: cliente });
                             } else {
                                 selectedItems = selectedItems.filter(item => !(item.type === 'material' && item.name === materialName && item.unidadId === unidadId));
                             }
@@ -227,6 +273,7 @@ function exportToExcel() {
     const data = selectedItems.map(item => ({
         ID: item.id || item.unidadId,
         ESTRUCTURA: item.estructura,
+        CLIENTE: item.cliente || '',
         ITEM: item.name || item.data || ''
     }));
 

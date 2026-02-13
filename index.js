@@ -48,7 +48,26 @@ app.get('/', async(req,res)=>{
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
             </head>
             <body>
+                <div class="search-container">
+                    <input type="text" id="search-input" class="search-input" placeholder="Buscar por estructura...">
+                    <select id="month-filter" class="month-filter">
+                        <option value="">Todos los meses</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
                 <button id="select-btn" class="select-btn">Seleccionar</button>
+
                 <div id="cards-container"></div>
                 <button id="export-btn" class="export-btn" style="display:none;">Exportar a Excel</button>
                 <script src="material_plasma.js"></script>
@@ -66,7 +85,7 @@ app.get('/api/unidades', async (req, res) => {
         let result = await pool.request().query(`
             SELECT TOP 10 
             u.id, u.estructura, c.descripcion, 
-            u.cliente, u.X1, u.SC, u.chasis4x2, 
+            u.cliente, u.fecha, u.X1, u.SC, u.chasis4x2, 
             u.chasis6x4, u.chasis8x4, u.CC, 
             u.CHD, u.BBC, u.CDF
             FROM unidad u
@@ -78,6 +97,40 @@ app.get('/api/unidades', async (req, res) => {
         console.error("Error detallado:", err);
     }
 });
+
+app.get('/api/unidades/search', async (req, res) => {
+    const { estructura, mes } = req.query;
+    try {
+        let pool = await sql.connect(config);
+        let query = `
+            SELECT 
+            u.id, u.estructura, c.descripcion, 
+            u.cliente, u.fecha, u.X1, u.SC, u.chasis4x2, 
+            u.chasis6x4, u.chasis8x4, u.CC, 
+            u.CHD, u.BBC, u.CDF
+            FROM unidad u
+            JOIN capacidad c ON u.capacidad = c.id
+            WHERE 1=1
+        `;
+        
+        if (estructura) {
+            query += ` AND u.estructura LIKE '%${estructura}%'`;
+        }
+        
+        if (mes) {
+            query += ` AND MONTH(u.fecha) = ${mes}`;
+        }
+        
+        query += ` ORDER BY u.id DESC`;
+        
+        let result = await pool.request().query(query);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error detallado:", err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 app.get('/api/materiales/:unidadId', async (req, res) => {
     const unidadId = req.params.unidadId;

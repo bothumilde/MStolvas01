@@ -7,7 +7,9 @@
     width: 300px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     animation: slideInFromRight 0.5s ease-out;
+    position: relative;
 }
+
 
 @keyframes slideInFromRight {
     from {
@@ -37,6 +39,18 @@
     color: #666;
 }
 
+.fecha {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 12px;
+    color: #888;
+    background-color: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+
 .materials-list {
     margin-top: 10px;
     padding: 10px;
@@ -59,6 +73,34 @@
     border-bottom: none;
 }
 
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin: 16px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.month-filter {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+}
+
+
 @media (max-width: 768px) {
     .card {
         width: 100%;
@@ -78,6 +120,11 @@
         font-size: 12px;
     }
 
+    .fecha {
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+
     .materials-list {
         padding: 8px;
     }
@@ -85,7 +132,17 @@
     .materials-list li {
         padding: 4px 0;
     }
+
+    .search-container {
+        flex-direction: column;
+        margin: 8px;
+    }
+
+    .search-input, .month-filter {
+        width: 100%;
+    }
 }
+
 
 @media (max-width: 480px) {
     .card {
@@ -102,5 +159,11 @@
 
     .cliente {
         font-size: 11px;
+    }
+
+    .fecha {
+        font-size: 10px;
+        top: 4px;
+        right: 4px;
     }
 }
