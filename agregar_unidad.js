@@ -71,16 +71,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             estructura: parseInt(estructura),
             cliente: cliente,
-            X1: tipo === 'X1' ? 1 : 0,
-            SC: tipo === 'SC' ? 1 : 0,
-            chasis4x2: chasis === 'chasis4x2' ? 1 : 0,
-            chasis6x4: chasis === 'chasis6x4' ? 1 : 0,
-            chasis8x4: chasis === 'chasis8x4' ? 1 : 0,
-            CC: compuerta === 'CC' ? 1 : 0,
-            CHD: compuerta === 'CHD' ? 1 : 0,
-            BBC: compuerta === 'BBC' ? 1 : 0,
-            CDF: compuerta === 'CDF' ? 1 : 0
+            X1: tipo === 'X1' ? 1 : null,
+            SC: tipo === 'SC' ? 1 : null,
+            chasis4x2: chasis === 'chasis4x2' ? 1 : null,
+            chasis6x4: chasis === 'chasis6x4' ? 1 : null,
+            chasis8x4: chasis === 'chasis8x4' ? 1 : null,
+            CC: compuerta === 'CC' ? 1 : null,
+            CHD: compuerta === 'CHD' ? 1 : null,
+            BBC: compuerta === 'BBC' ? 1 : null,
+            CDF: compuerta === 'CDF' ? 1 : null
         };
+
 
         try {
             const response = await fetch('/api/unidades', {
