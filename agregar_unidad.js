@@ -14,7 +14,15 @@ const formHTML = `
             </div>
             
             <div class="form-group">
+                <label for="capacidad">Capacidad:</label>
+                <select id="capacidad" name="capacidad" required class="form-select">
+                    <option value="">Seleccione la capacidad</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label for="tipo">Tipo:</label>
+
                 <select id="tipo" name="tipo" required class="form-select">
                     <option value="">Seleccione el tipo</option>
                     <option value="X1">X1</option>
@@ -55,7 +63,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Insertar HTML inline
     formContainer.innerHTML = formHTML;
 
+    // Cargar capacidades desde la API
+    async function loadCapacidades() {
+        try {
+            const response = await fetch('/api/capacidades');
+            if (response.ok) {
+                const capacidades = await response.json();
+                const select = document.getElementById('capacidad');
+                capacidades.forEach(cap => {
+                    const option = document.createElement('option');
+                    option.value = cap.id;
+                    option.textContent = cap.descripcion;
+                    select.appendChild(option);
+                });
+            }
+        } catch (err) {
+            console.error('Error cargando capacidades:', err);
+        }
+    }
+    
+    loadCapacidades();
+
     // Configurar el manejador del formulario
+
     const form = document.getElementById('unidad-form');
     const messageDiv = document.getElementById('message');
 
@@ -64,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const estructura = document.getElementById('estructura').value;
         const cliente = document.getElementById('cliente').value;
+        const capacidad = document.getElementById('capacidad').value;
         const tipo = document.getElementById('tipo').value;
         const chasis = document.getElementById('chasis').value;
         const compuerta = document.getElementById('compuerta').value;
@@ -71,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             estructura: parseInt(estructura),
             cliente: cliente,
+            capacidad: parseInt(capacidad),
             X1: tipo === 'X1' ? 1 : null,
             SC: tipo === 'SC' ? 1 : null,
             chasis4x2: chasis === 'chasis4x2' ? 1 : null,
@@ -81,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             BBC: compuerta === 'BBC' ? 1 : null,
             CDF: compuerta === 'CDF' ? 1 : null
         };
+
 
 
         try {

@@ -80,6 +80,17 @@ app.get('/', async(req,res)=>{
         </html>`);
     });
 
+app.get('/api/capacidades', async (req, res) => {
+    try {
+        let pool = await sql.connect(config);
+        let result = await pool.request().query('SELECT id, descripcion FROM capacidad ORDER BY id');
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error detallado:", err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.get('/api/unidades', async (req, res) => {
     try {
         let pool = await sql.connect(config);
@@ -90,7 +101,7 @@ app.get('/api/unidades', async (req, res) => {
             u.chasis6x4, u.chasis8x4, u.CC, 
             u.CHD, u.BBC, u.CDF
             FROM unidad u
-            JOIN capacidad c ON u.capacidad = c.id
+            LEFT JOIN capacidad c ON u.capacidad = c.id
             ORDER BY u.id DESC
         `);
         res.json(result.recordset);
@@ -98,6 +109,7 @@ app.get('/api/unidades', async (req, res) => {
         console.error("Error detallado:", err);
     }
 });
+
 
 app.get('/api/unidades/search', async (req, res) => {
     const { estructura, mes } = req.query;
@@ -110,9 +122,10 @@ app.get('/api/unidades/search', async (req, res) => {
             u.chasis6x4, u.chasis8x4, u.CC, 
             u.CHD, u.BBC, u.CDF
             FROM unidad u
-            JOIN capacidad c ON u.capacidad = c.id
+            LEFT JOIN capacidad c ON u.capacidad = c.id
             WHERE 1=1
         `;
+
         
         if (estructura) {
             query += ` AND u.estructura LIKE '%${estructura}%'`;
@@ -164,12 +177,13 @@ app.get('/api/materiales/:unidadId', async (req, res) => {
 
 app.post('/api/unidades', async (req, res) => {
     try {
-        const { estructura, cliente, X1, SC, chasis4x2, chasis6x4, chasis8x4, CC, CHD, BBC, CDF } = req.body;
+        const { estructura, cliente, capacidad, X1, SC, chasis4x2, chasis6x4, chasis8x4, CC, CHD, BBC, CDF } = req.body;
         
         let pool = await sql.connect(config);
         let result = await pool.request()
             .input('estructura', sql.Int, estructura)
             .input('cliente', sql.NVarChar(1000), cliente)
+            .input('capacidad', sql.Int, capacidad)
             .input('X1', sql.Bit, X1)
             .input('SC', sql.Bit, SC)
             .input('chasis4x2', sql.Bit, chasis4x2)
@@ -180,9 +194,9 @@ app.post('/api/unidades', async (req, res) => {
             .input('BBC', sql.Bit, BBC)
             .input('CDF', sql.Bit, CDF)
             .query(`
-                INSERT INTO unidad (estructura, cliente, X1, SC, chasis4x2, chasis6x4, chasis8x4, CC, CHD, BBC, CDF)
+                INSERT INTO unidad (estructura, cliente, capacidad, X1, SC, chasis4x2, chasis6x4, chasis8x4, CC, CHD, BBC, CDF)
                 OUTPUT INSERTED.id
-                VALUES (@estructura, @cliente, @X1, @SC, @chasis4x2, @chasis6x4, @chasis8x4, @CC, @CHD, @BBC, @CDF)
+                VALUES (@estructura, @cliente, @capacidad, @X1, @SC, @chasis4x2, @chasis6x4, @chasis8x4, @CC, @CHD, @BBC, @CDF)
             `);
         
         res.status(201).json({ id: result.recordset[0].id, message: 'Unidad creada exitosamente' });
@@ -191,6 +205,7 @@ app.post('/api/unidades', async (req, res) => {
         res.status(500).json({ error: 'Internal server error', message: err.message });
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Servidor corriendo en puerto ${port}`);
