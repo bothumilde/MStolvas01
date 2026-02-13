@@ -13,32 +13,15 @@ function hideLoading() {
     document.body.classList.remove('loading');
 }
 
-// Floating Button Scroll Behavior
+// Floating Button - Always Visible
 function initFloatingButton() {
     const fab = document.getElementById('fab-add');
     if (!fab) return;
     
-    // Hide FAB when near top, show when scrolled
-    let lastScrollY = window.scrollY;
-    
-    function updateFabVisibility() {
-        const scrollY = window.scrollY;
-        const windowHeight = window.innerHeight;
-        const documentHeight = document.documentElement.scrollHeight;
-        
-        // Show FAB when scrolled down more than 100px
-        if (scrollY > 100) {
-            fab.classList.remove('hidden');
-        } else {
-            fab.classList.add('hidden');
-        }
-        
-        lastScrollY = scrollY;
-    }
-    
-    window.addEventListener('scroll', updateFabVisibility, { passive: true });
-    updateFabVisibility(); // Initial check
+    // Ensure FAB is always visible
+    fab.classList.remove('hidden');
 }
+
 
 // HTML inline para el formulario de agregar unidad
 const formHTML = `

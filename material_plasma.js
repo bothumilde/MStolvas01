@@ -14,22 +14,15 @@ function hideLoading() {
     overlay.classList.remove('active');
     document.body.classList.remove('loading');
 }
+// Floating Button - Always Visible
 function initFloatingButton() {
     const fab = document.getElementById('fab-add');
     if (!fab) return;
     
-    function updateFabVisibility() {
-        const scrollY = window.scrollY;
-        if (scrollY > 100) {
-            fab.classList.remove('hidden');
-        } else {
-            fab.classList.add('hidden');
-        }
-    }
-    
-    window.addEventListener('scroll', updateFabVisibility, { passive: true });
-    updateFabVisibility();
+    // Ensure FAB is always visible
+    fab.classList.remove('hidden');
 }
+
 
 let selectMode = false;
 let selectedItems = [];
