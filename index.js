@@ -49,6 +49,7 @@ app.get('/', async(req,res)=>{
             </head>
             <body>
                 <div class="search-container">
+                    <a href="agregar_unidad.html" class="add-link">+ Agregar Unidad</a>
                     <input type="text" id="search-input" class="search-input" placeholder="Buscar por estructura...">
                     <select id="month-filter" class="month-filter">
                         <option value="">Todos los meses</option>
@@ -131,7 +132,6 @@ app.get('/api/unidades/search', async (req, res) => {
     }
 });
 
-
 app.get('/api/materiales/:unidadId', async (req, res) => {
     const unidadId = req.params.unidadId;
     try {
@@ -193,6 +193,5 @@ app.post('/api/unidades', async (req, res) => {
 });
 
 app.listen(port, () => {
-
     console.log(`Servidor corriendo en puerto ${port}`);
 });

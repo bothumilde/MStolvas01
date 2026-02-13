@@ -1,72 +1,73 @@
+// HTML inline para el formulario de agregar unidad
+const formHTML = `
+    <div class="form-container">
+        <h2 class="form-title">Agregar Nueva Unidad</h2>
+        <form id="unidad-form">
+            <div class="form-group">
+                <label for="estructura">Estructura:</label>
+                <input type="number" id="estructura" name="estructura" required class="form-input" placeholder="Ingrese el número de estructura">
+            </div>
+            
+            <div class="form-group">
+                <label for="cliente">Cliente:</label>
+                <input type="text" id="cliente" name="cliente" required maxlength="1000" class="form-input" placeholder="Ingrese el nombre del cliente">
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select id="tipo" name="tipo" required class="form-select">
+                    <option value="">Seleccione el tipo</option>
+                    <option value="X1">X1</option>
+                    <option value="SC">SC</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="chasis">Chasis:</label>
+                <select id="chasis" name="chasis" required class="form-select">
+                    <option value="">Seleccione el chasis</option>
+                    <option value="chasis4x2">4x2</option>
+                    <option value="chasis6x4">6x4</option>
+                    <option value="chasis8x4">8x4</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="compuerta">Compuerta:</label>
+                <select id="compuerta" name="compuerta" required class="form-select">
+                    <option value="">Seleccione la compuerta</option>
+                    <option value="CC">CC</option>
+                    <option value="CHD">CHD</option>
+                    <option value="BBC">BBC</option>
+                    <option value="CDF">CDF</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="submit-btn">Guardar Unidad</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+`;
+
 document.addEventListener('DOMContentLoaded', () => {
     const formContainer = document.getElementById('form-container');
     
-    // Create form HTML
-    formContainer.innerHTML = `
-        <div class="form-container">
-            <h2 class="form-title">Crear nueva unidad</h2>
-            <form id="unidad-form">
-                <div class="form-group">
-                    <label for="estructura">Estructura:</label>
-                    <input type="number" id="estructura" name="estructura" required class="form-input" placeholder="Ingrese el número de estructura">
-                </div>
-                
-                <div class="form-group">
-                    <label for="cliente">Cliente:</label>
-                    <input type="text" id="cliente" name="cliente" required maxlength="1000" class="form-input" placeholder="Ingrese el nombre del cliente">
-                </div>
-                
-                <div class="form-group">
-                    <label for="tipo">Tipo:</label>
-                    <select id="tipo" name="tipo" required class="form-select">
-                        <option value="">Seleccione el tipo</option>
-                        <option value="X1">X1</option>
-                        <option value="SC">SC</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="chasis">Chasis:</label>
-                    <select id="chasis" name="chasis" required class="form-select">
-                        <option value="">Seleccione el chasis</option>
-                        <option value="chasis4x2">4x2</option>
-                        <option value="chasis6x4">6x4</option>
-                        <option value="chasis8x4">8x4</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="compuerta">Compuerta:</label>
-                    <select id="compuerta" name="compuerta" required class="form-select">
-                        <option value="">Seleccione la compuerta</option>
-                        <option value="CC">CC</option>
-                        <option value="CHD">CHD</option>
-                        <option value="BBC">BBC</option>
-                        <option value="CDF">CDF</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="submit-btn">Registrar Unidad</button>
-            </form>
-            <div id="message" class="message"></div>
-        </div>
-    `;
+    // Insertar HTML inline
+    formContainer.innerHTML = formHTML;
 
-    // Handle form submission
+    // Configurar el manejador del formulario
     const form = document.getElementById('unidad-form');
     const messageDiv = document.getElementById('message');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Get form values
         const estructura = document.getElementById('estructura').value;
         const cliente = document.getElementById('cliente').value;
         const tipo = document.getElementById('tipo').value;
         const chasis = document.getElementById('chasis').value;
         const compuerta = document.getElementById('compuerta').value;
 
-        // Build data object with bit fields
         const formData = {
             estructura: parseInt(estructura),
             cliente: cliente,
