@@ -25,7 +25,6 @@ function initFloatingButton() {
 
 // HTML inline para el formulario de agregar unidad
 const formHTML = `
-
     <div class="form-container">
         <h2 class="form-title"> 📖 Registrar unidad</h2>
         <form id="unidad-form">
