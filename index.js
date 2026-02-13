@@ -47,6 +47,7 @@ app.get('/', async(req,res)=>{
                 <link rel="stylesheet" href="styles.css">
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
             </head>
+            <h2 class="form-title">🤓 Panel principal</h2>
             <body>
                 <!-- Loading Overlay -->
                 <div id="loading-overlay">

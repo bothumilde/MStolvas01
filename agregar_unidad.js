@@ -27,7 +27,7 @@ function initFloatingButton() {
 const formHTML = `
 
     <div class="form-container">
-        <h2 class="form-title">Agregar Nueva Unidad</h2>
+        <h2 class="form-title"> 📖 Registrar unidad</h2>
         <form id="unidad-form">
             <div class="form-group">
                 <label for="estructura">Estructura:</label>
@@ -42,7 +42,7 @@ const formHTML = `
             <div class="form-group">
                 <label for="capacidad">Capacidad:</label>
                 <select id="capacidad" name="capacidad" required class="form-select">
-                    <option value="">Seleccione la capacidad</option>
+                    <option value="">--Seleccione la capacidad--</option>
                 </select>
             </div>
             
@@ -50,7 +50,7 @@ const formHTML = `
                 <label for="tipo">Tipo:</label>
 
                 <select id="tipo" name="tipo" required class="form-select">
-                    <option value="">Seleccione el tipo</option>
+                    <option value="">--Seleccione el tipo--</option>
                     <option value="X1">X1</option>
                     <option value="SC">SC</option>
                 </select>
@@ -59,7 +59,7 @@ const formHTML = `
             <div class="form-group">
                 <label for="chasis">Chasis:</label>
                 <select id="chasis" name="chasis" required class="form-select">
-                    <option value="">Seleccione el chasis</option>
+                    <option value="">--Seleccione el chasis--</option>
                     <option value="chasis4x2">4x2</option>
                     <option value="chasis6x4">6x4</option>
                     <option value="chasis8x4">8x4</option>
@@ -69,7 +69,7 @@ const formHTML = `
             <div class="form-group">
                 <label for="compuerta">Compuerta:</label>
                 <select id="compuerta" name="compuerta" required class="form-select">
-                    <option value="">Seleccione la compuerta</option>
+                    <option value="">--Seleccione la compuerta--</option>
                     <option value="CC">CC</option>
                     <option value="CHD">CHD</option>
                     <option value="BBC">BBC</option>
@@ -77,7 +77,7 @@ const formHTML = `
                 </select>
             </div>
             
-            <button type="submit" class="submit-btn">Guardar Unidad</button>
+            <button type="submit" class="submit-btn">💾Grabar</button>
         </form>
         <div id="message" class="message"></div>
     </div>
