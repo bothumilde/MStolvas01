@@ -1,5 +1,48 @@
+// Loading Overlay Functions
+function showLoading(text = 'Cargando...') {
+    const overlay = document.getElementById('loading-overlay');
+    const loadingText = overlay.querySelector('.loading-text');
+    if (loadingText) loadingText.textContent = text;
+    overlay.classList.add('active');
+    document.body.classList.add('loading');
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.remove('active');
+    document.body.classList.remove('loading');
+}
+
+// Floating Button Scroll Behavior
+function initFloatingButton() {
+    const fab = document.getElementById('fab-add');
+    if (!fab) return;
+    
+    // Hide FAB when near top, show when scrolled
+    let lastScrollY = window.scrollY;
+    
+    function updateFabVisibility() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // Show FAB when scrolled down more than 100px
+        if (scrollY > 100) {
+            fab.classList.remove('hidden');
+        } else {
+            fab.classList.add('hidden');
+        }
+        
+        lastScrollY = scrollY;
+    }
+    
+    window.addEventListener('scroll', updateFabVisibility, { passive: true });
+    updateFabVisibility(); // Initial check
+}
+
 // HTML inline para el formulario de agregar unidad
 const formHTML = `
+
     <div class="form-container">
         <h2 class="form-title">Agregar Nueva Unidad</h2>
         <form id="unidad-form">
@@ -65,8 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar capacidades desde la API
     async function loadCapacidades() {
+        showLoading('Cargando capacidades...');
         try {
             const response = await fetch('/api/capacidades');
+
             if (response.ok) {
                 const capacidades = await response.json();
                 const select = document.getElementById('capacidad');
@@ -79,8 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error('Error cargando capacidades:', err);
+        } finally {
+            hideLoading();
         }
     }
+
     
     loadCapacidades();
 
@@ -91,8 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        showLoading('Guardando unidad...');
         
         const estructura = document.getElementById('estructura').value;
+
         const cliente = document.getElementById('cliente').value;
         const capacidad = document.getElementById('capacidad').value;
         const tipo = document.getElementById('tipo').value;
@@ -138,6 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             messageDiv.textContent = '❌ Error de conexión: ' + err.message;
             messageDiv.className = 'message error';
+        } finally {
+            hideLoading();
         }
     });
+    
+    // Initialize floating button
+    initFloatingButton();
 });

@@ -48,9 +48,15 @@ app.get('/', async(req,res)=>{
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
             </head>
             <body>
+                <!-- Loading Overlay -->
+                <div id="loading-overlay">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Cargando...</div>
+                </div>
+                
                 <div class="search-container">
-                    <a href="agregar_unidad.html" class="add-link">+ Agregar Unidad</a>
                     <input type="text" id="search-input" class="search-input" placeholder="Buscar por estructura...">
+
                     <select id="month-filter" class="month-filter">
                         <option value="">Todos los meses</option>
                         <option value="1">Enero</option>
@@ -72,12 +78,17 @@ app.get('/', async(req,res)=>{
                 <div id="cards-container"></div>
                 <button id="export-btn" class="export-btn" style="display:none;">Exportar a Excel</button>
                 <script src="material_plasma.js"></script>
+                
+                <!-- Floating Action Button -->
+                <a href="agregar_unidad.html" class="floating-btn" id="fab-add" title="Agregar Unidad">+</a>
+                
                 <div class="footer-info">
                     <p class="status-badge">${sqlStatus}</p>
                     <p>Versión detectada: <br> ${sqlVersion}</p>
                 </div>
             </body>
         </html>`);
+
     });
 
 app.get('/api/capacidades', async (req, res) => {

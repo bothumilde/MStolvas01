@@ -1,9 +1,44 @@
+// Loading Overlay Functions
+function showLoading(text = 'Cargando...') {
+    const overlay = document.getElementById('loading-overlay');
+    if (!overlay) return;
+    const loadingText = overlay.querySelector('.loading-text');
+    if (loadingText) loadingText.textContent = text;
+    overlay.classList.add('active');
+    document.body.classList.add('loading');
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    document.body.classList.remove('loading');
+}
+function initFloatingButton() {
+    const fab = document.getElementById('fab-add');
+    if (!fab) return;
+    
+    function updateFabVisibility() {
+        const scrollY = window.scrollY;
+        if (scrollY > 100) {
+            fab.classList.remove('hidden');
+        } else {
+            fab.classList.add('hidden');
+        }
+    }
+    
+    window.addEventListener('scroll', updateFabVisibility, { passive: true });
+    updateFabVisibility();
+}
+
 let selectMode = false;
 let selectedItems = [];
 
 async function loadUnidades(searchParams = {}) {
+    showLoading('Cargando unidades...');
     try {
         let url = '/api/unidades';
+
         if (searchParams.estructura || searchParams.mes) {
             const queryParams = new URLSearchParams();
             if (searchParams.estructura) queryParams.append('estructura', searchParams.estructura);
@@ -76,8 +111,10 @@ async function loadUnidades(searchParams = {}) {
                     existingMaterials.remove();
                 } else {
                     card.isLoadingMaterials = true;
+                    showLoading('Cargando materiales...');
                     try {
                         const response = await fetch(`/api/materiales/${unidad.id}`);
+
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
@@ -127,8 +164,10 @@ async function loadUnidades(searchParams = {}) {
                         card.appendChild(errorDiv);
                     } finally {
                         card.isLoadingMaterials = false;
+                        hideLoading();
                     }
                 }
+
             });
 
             container.appendChild(card);
@@ -140,13 +179,18 @@ async function loadUnidades(searchParams = {}) {
         errorDiv.className = 'error';
         errorDiv.textContent = 'Error loading unidades: ' + error.message;
         container.appendChild(errorDiv);
+    } finally {
+        hideLoading();
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
     loadUnidades();
+    initFloatingButton();
 
     const selectBtn = document.getElementById('select-btn');
+
     const exportBtn = document.getElementById('export-btn');
     const searchInput = document.getElementById('search-input');
     const monthFilter = document.getElementById('month-filter');
@@ -279,6 +323,6 @@ function exportToExcel() {
 
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Seleccionados');
-    XLSX.writeFile(wb, 'seleccionados.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'output');
+    XLSX.writeFile(wb, 'output.xlsx');
 }
