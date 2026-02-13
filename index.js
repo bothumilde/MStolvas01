@@ -161,6 +161,38 @@ app.get('/api/materiales/:unidadId', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+app.post('/api/unidades', async (req, res) => {
+    try {
+        const { estructura, cliente, X1, SC, chasis4x2, chasis6x4, chasis8x4, CC, CHD, BBC, CDF } = req.body;
+        
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+            .input('estructura', sql.Int, estructura)
+            .input('cliente', sql.NVarChar(1000), cliente)
+            .input('X1', sql.Bit, X1)
+            .input('SC', sql.Bit, SC)
+            .input('chasis4x2', sql.Bit, chasis4x2)
+            .input('chasis6x4', sql.Bit, chasis6x4)
+            .input('chasis8x4', sql.Bit, chasis8x4)
+            .input('CC', sql.Bit, CC)
+            .input('CHD', sql.Bit, CHD)
+            .input('BBC', sql.Bit, BBC)
+            .input('CDF', sql.Bit, CDF)
+            .query(`
+                INSERT INTO unidad (estructura, cliente, X1, SC, chasis4x2, chasis6x4, chasis8x4, CC, CHD, BBC, CDF)
+                OUTPUT INSERTED.id
+                VALUES (@estructura, @cliente, @X1, @SC, @chasis4x2, @chasis6x4, @chasis8x4, @CC, @CHD, @BBC, @CDF)
+            `);
+        
+        res.status(201).json({ id: result.recordset[0].id, message: 'Unidad creada exitosamente' });
+    } catch (err) {
+        console.error("Error detallado:", err);
+        res.status(500).json({ error: 'Internal server error', message: err.message });
+    }
+});
+
 app.listen(port, () => {
+
     console.log(`Servidor corriendo en puerto ${port}`);
 });
