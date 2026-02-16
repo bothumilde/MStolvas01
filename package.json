@@ -1,0 +1,19 @@
+{
+  "name": "tolvas01",
+  "version": "1.0.0",
+  "description": "Microservicio Tolvas",
+  "main": "index.js", 
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.0.0",
+    "express": "^4.18.2",
+    "mssql": "^10.0.1"
+  },
+  "author": "ALEJO",
+  "license": "ISC"
+}
